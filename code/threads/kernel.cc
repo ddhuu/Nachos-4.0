@@ -18,7 +18,7 @@
 #include "synchdisk.h"
 #include "post.h"
 
-#define MAX_PROCESS 10
+
 
 //----------------------------------------------------------------------
 // Kernel::Kernel
@@ -117,7 +117,11 @@ void Kernel::Initialize()
     machine = new Machine(debugUserProg);
     synchConsoleIn = new SynchConsoleInput(consoleIn);    // input from stdin
     synchConsoleOut = new SynchConsoleOutput(consoleOut); // output to stdout
-    synchDisk = new SynchDisk();                          //
+    synchDisk = new SynchDisk(); 
+    gPhysPageBitMap = new Bitmap(NumPhysPages);
+    addrLock = new Semaphore("addrLock",1);
+    pTab = new PTable;
+    semTab = new STable;                        //
 #ifdef FILESYS_STUB
     fileSystem = new FileSystem();
 #else
@@ -147,6 +151,10 @@ Kernel::~Kernel()
     delete fileSystem;
     delete postOfficeIn;
     delete postOfficeOut;
+    delete gPhysPageBitMap;
+    delete addrLock;
+    delete pTab;
+    delete semTab;
 
     Exit(0);
 }

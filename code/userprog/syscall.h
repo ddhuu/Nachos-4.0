@@ -42,6 +42,11 @@
 #define SC_Receive 46
 #define SC_ReadString 47
 #define SC_PrintString 48
+#define SC_PrintNum 17
+
+#define SC_CreateSemaphore 23
+#define SC_Wait 24
+#define SC_Signal 25
 
 #ifndef IN_ASM
 
@@ -54,6 +59,10 @@
  * are then invoked in the Nachos kernel, after appropriate error checking,
  * from the system call entry point in exception.cc.
  */
+
+// Utility
+ void PrintNum(int number);
+
 
 //--------------Socket --------------
 
@@ -105,6 +114,13 @@ SpaceId ExecV(int argc, char *argv[]);
  */
 int Join(SpaceId id);
 
+
+int CreateSemaphore(char *name, int semval);
+
+int Wait(char *name);
+
+int Signal(char *name);
+
 /* File system operations: Create, Remove, Open, Read, Write, Close
  * These functions are patterned after UNIX -- files represent
  * both files *and* hardware I/O devices.
@@ -123,8 +139,8 @@ typedef int OpenFileId;
  * the console device.
  */
 
-#define ConsoleInput 0
-#define ConsoleOutput 1
+#define CONSOLEINPUT 0
+#define CONSOLEOUTPUT 1
 
 /* Create a Nachos file, with name "name" */
 /* Note: Create does not open the file.   */

@@ -114,7 +114,7 @@ else
 # change this if you create a new test program!
 PROGRAMS = halt shell matmult sort segments\
 			createfile delete cat copy concatenate testSeek\
-			fileclient echoclient
+			fileclient echoclient exec join
 endif
 
 all: $(PROGRAMS)
@@ -218,6 +218,17 @@ testSyscall.o: testSyscall.c
 testSyscall: testSyscall.o start.o
 	$(LD) $(LDFLAGS) start.o testSyscall.o -o testSyscall.coff
 	$(COFF2NOFF) testSyscall.coff testSyscall
+exec.o: exec.c
+	$(CC) $(CFLAGS) -c exec.c
+exec: exec.o start.o
+	$(LD) $(LDFLAGS) start.o exec.o -o exec.coff
+	$(COFF2NOFF) exec.coff exec
+
+join.o: join.c
+	$(CC) $(CFLAGS) -c join.c
+join: join.o start.o
+	$(LD) $(LDFLAGS) start.o join.o -o join.coff
+	$(COFF2NOFF) join.coff join
 
 clean:
 	$(RM) -f *.o *.ii

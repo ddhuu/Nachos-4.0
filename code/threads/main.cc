@@ -285,6 +285,7 @@ main(int argc, char **argv)
 
     // finally, run an initial user program if requested to do so
     if (userProgName != NULL) {
+      kernel->pTab->InitFirstProcess(userProgName, kernel->currentThread);
       AddrSpace *space = new AddrSpace;
       ASSERT(space != (AddrSpace *)NULL);
       if (space->Load(userProgName)) {  // load the program into the space

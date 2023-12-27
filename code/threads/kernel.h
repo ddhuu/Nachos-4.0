@@ -10,6 +10,7 @@
 
 #include "copyright.h"
 #include "debug.h"
+#include "synch.h"
 #include "utility.h"
 #include "thread.h"
 #include "scheduler.h"
@@ -18,12 +19,20 @@
 #include "alarm.h"
 #include "filesys.h"
 #include "machine.h"
+#include "bitmap.h"
+#include "STable.h"
+#include "PTable.h"
+
 
 class PostOfficeInput;
 class PostOfficeOutput;
 class SynchConsoleInput;
 class SynchConsoleOutput;
 class SynchDisk;
+class PTable;
+class STable;
+class Semaphore;
+
 
 class Kernel
 {
@@ -58,6 +67,12 @@ public:
   PostOfficeInput *postOfficeIn;
   PostOfficeOutput *postOfficeOut;
   int hostName; // machine identifier
+
+  Bitmap* gPhysPageBitMap;
+  Semaphore* addrLock;
+  PTable* pTab;
+  STable* semTab;
+
 
 private:
   bool randomSlice;   // enable pseudo-random time slicing

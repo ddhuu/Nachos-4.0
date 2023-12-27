@@ -16,11 +16,21 @@
 #include "copyright.h"
 #include "filesys.h"
 
+
+#ifndef NOFF_H
+#define NOFF_H
+
+#include "noff.h"
+#endif
+
+
+
 #define UserStackSize		1024 	// increase this as necessary!
 
 class AddrSpace {
   public:
     AddrSpace();			// Create an address space.
+    AddrSpace(char* fileName);
     ~AddrSpace();			// De-allocate an address space
 
     bool Load(char *fileName);		// Load a program into addr space from
@@ -47,6 +57,10 @@ class AddrSpace {
 
     void InitRegisters();		// Initialize user-level CPU registers,
 					// before jumping to user code
+
+
+
+    char* progName;
 
 };
 

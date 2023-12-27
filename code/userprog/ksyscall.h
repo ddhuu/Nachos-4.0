@@ -13,7 +13,6 @@
 
 #include "kernel.h"
 #include "synchconsole.h"
-#include <syscall.h>
 
 #define MAXLENGTH 255
 

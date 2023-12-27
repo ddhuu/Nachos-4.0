@@ -24,10 +24,16 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "ksyscall.h"
 #include "main.h"
 #include "syscall.h"
+#include "ksyscall.h"
+#include "synchconsole.h"
+#include "stdint.h"
+#include "time.h"
+#include "STable.h"
+#include "PTable.h"
 
+#define MaxFileLength 32 
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -96,6 +102,193 @@ int System2User(int virtAddr, int len, char *buffer)
 		i++;
 	} while (i < len && oneChar != 0);
 	return i;
+}
+void ExceptionHandlerExec()
+{
+	DEBUG(dbgSys, "Syscall: Exec(filename)");
+
+	int addr = kernel->machine->ReadRegister(4);
+	DEBUG(dbgSys, "Register 4: " << addr);
+
+	char *fileName;
+	fileName = User2System(addr, 255);
+	DEBUG(dbgSys, "Read file name: " << fileName);
+
+	DEBUG(dbgSys, "Scheduling execution...");
+	int result = kernel->pTab->ExecUpdate(fileName);
+
+	DEBUG(dbgSys, "Writing result to register 2: " << result);
+	kernel->machine->WriteRegister(2, result);
+	delete fileName;
+}
+
+// Usage: block the current thread until the child thread has exited
+// Input: ID of the thread being joined
+// Output: exit code of the thread
+void ExceptionHandlerJoin()
+{
+	DEBUG(dbgSys, "Syscall: Join");
+	int id = kernel->machine->ReadRegister(4);
+	int result = kernel->pTab->JoinUpdate(id);
+	kernel->machine->WriteRegister(2, result);
+}
+
+// Usage: exit current thread
+// Input: exit code to pass to parent
+// Output: none
+void ExceptionHandlerExit()
+{
+	DEBUG(dbgSys, "Syscall: Exit");
+	int exitCode = kernel->machine->ReadRegister(4);
+	int result = kernel->pTab->ExitUpdate(exitCode);
+}
+
+// Usage: Create a semaphore
+// Input : name of semphore and int for semaphore value
+// Output : success: 0, fail: -1
+void ExceptionHandlerCreateSemaphore()
+{
+	// Load name and value of semaphore
+	int virtAddr = kernel->machine->ReadRegister(4); // read name address from 4th register
+	int semVal = kernel->machine->ReadRegister(5);	 // read type from 5th register
+	char *name = User2System(virtAddr, MaxFileLength); // Copy semaphore name charArray form userSpace to systemSpace
+	
+	// Validate name
+	if(name == NULL)
+	{
+		// DEBUG(dbgSynch, "\nNot enough memory in System");
+		printf("\nNot enough memory in System");
+		kernel->machine->WriteRegister(2, -1);
+		delete[] name;
+		return;
+	}
+	
+	int res = kernel->semTab->Create(name, semVal);
+
+	// Check error
+	if(res == -1)
+	{
+		// DEBUG('a', "\nCan not create semaphore");
+		printf("\nCan not create semaphore");
+	}
+	
+	delete[] name;
+	kernel->machine->WriteRegister(2, res);
+	return;
+}
+
+// Usage: Sleep
+// Input : name of semaphore
+// Output : success: 0, fail: -1
+void ExceptionHandlerWait()
+{
+	// Load name of semaphore
+	int virtAddr = kernel->machine->ReadRegister(4);
+	char *name = User2System(virtAddr, MaxFileLength + 1);
+
+	// Validate name
+	if(name == NULL)
+	{
+		// DEBUG(dbgSynch, "\nNot enough memory in System");
+		printf("\nNot enough memory in System");
+		kernel->machine->WriteRegister(2, -1);
+		delete[] name;
+		return;
+	}
+
+	int res = kernel->semTab->Wait(name);
+	
+	// Check error
+	if(res == -1)
+	{
+		// DEBUG(dbgSynch, "\nNot exists semaphore");
+		printf("\nNot exists semaphore");
+	}
+
+	delete[] name;
+	kernel->machine->WriteRegister(2, res);
+	return;
+}
+
+// Usage: Wake up
+// Input : name of semaphore
+// Output : success: 0, fail: -1
+void ExceptionHandlerSignal()
+{
+	// Load name of semphore
+	int virtAddr = kernel->machine->ReadRegister(4);
+	char *name = User2System(virtAddr, MaxFileLength + 1);
+
+	// Validate name
+	if(name == NULL)
+	{
+		// DEBUG(dbgSynch, "\nNot enough memory in System");
+		printf("\n Not enough memory in System");
+		kernel->machine->WriteRegister(2, -1);
+		delete[] name;
+		return;
+	}
+	
+	int res = kernel->semTab->Signal(name);
+
+	// Check error
+	if(res == -1)
+	{
+		// DEBUG(dbgSynch, "\nNot exists semaphore");
+		printf("\nNot exists semaphore");
+	}
+	
+	delete[] name;
+	kernel->machine->WriteRegister(2, res);
+	return;
+}
+void ExceptionHandlerPrintNum()
+{
+	// read number from register 4
+	int number = kernel->machine->ReadRegister(4);
+
+	/*int: [-2147483648 , 2147483647] --> max buffer = 11*/
+	const int MAX_BUFFER = 11;
+	char *num_buffer = new char[MAX_BUFFER];
+
+	// make a temp array full with 0
+	int temp[MAX_BUFFER] = {0};
+
+	// index counter
+	int i, j;
+	i = j = 0;
+
+	bool isPositive = true;
+
+	// negative number
+	if (number < 0)
+	{
+		number = -number;
+		num_buffer[i] = '-';
+		i++;
+		isPositive = false;
+	}
+
+	// save each num in number from end to start into temp array
+	do
+	{
+		temp[j] = number % 10;
+		number /= 10;
+		j++;
+	} while (number);
+
+	int length = isPositive ? j : j + 1; // real buffer size for number
+
+	while (j)
+	{
+		j--;
+		num_buffer[i] = '0' + (char)temp[j];
+		i++;
+	}
+
+	// print the result to console
+	for (int i = 0; i < length; i++)
+		kernel->synchConsoleOut->PutChar(num_buffer[i]);
 }
 
 void ExceptionHandler(ExceptionType which)
@@ -390,9 +583,50 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
+		case SC_Exec:
+		{
+			ExceptionHandlerExec();
+			IncreasePC();
+			break;
+		}
+
+		case SC_Join:
+		{
+			ExceptionHandlerJoin();
+			IncreasePC();
+			break;
+		}
+
 		case SC_Exit:
 		{
-			int id = kernel->machine->ReadRegister(4);
+			ExceptionHandlerExit();
+			IncreasePC();
+			break;
+		}
+
+		case SC_CreateSemaphore:
+		{
+			ExceptionHandlerCreateSemaphore();
+			IncreasePC();
+			break;
+		}
+
+		case SC_Wait:
+		{
+			ExceptionHandlerWait();
+			IncreasePC();
+			break;
+		}
+
+		case SC_Signal:
+		{
+			ExceptionHandlerSignal();
+			IncreasePC();
+			break;
+		}
+		case SC_PrintNum:
+		{
+			ExceptionHandlerPrintNum();
 			IncreasePC();
 			break;
 		}
