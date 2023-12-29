@@ -2,8 +2,18 @@
 
 int main()
 {
+    char fileName[50];
     int result = 0;
-    result = Create("1234567.txt");
-   
-    Halt();
+    PrintString("* * * Nhap vao ten file can tao: ");
+    ReadString(fileName);
+
+    result = Create(fileName);
+    if (result == -1)
+    {
+        PrintString("Tao file that bai\n");
+    }
+    else if (result == 0)
+    {
+        PrintString("Tao file thanh cong\n");
+    }
 }
