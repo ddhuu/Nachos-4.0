@@ -55,6 +55,11 @@ int PTable::ExecUpdate(char* fileName)
         sem->V();
         return -1;
     }
+
+    DEBUG(dbgThread,"PTable: Obtained slot" <<slot);
+    pcbs[slot] = new PCB();
+    pcbs[slot]->parentID = currentThreadId;
+
     DEBUG(dbgThread,"PTable: Scheduling program for execution.....\n");
     int result = pcbs[slot]->Exec(fileName,slot);
     numProcesses++;

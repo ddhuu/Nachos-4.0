@@ -9,19 +9,12 @@
 // Entry point for executing the process
 static void StartProcess(void *args)
 {
-    char* filename = (char*) args;
-    DEBUG(dbgThread,"PCB: Starting Process" << filename);
-    AddrSpace* addrspace = new AddrSpace;
-    if (addrspace == nullptr) {
-        DEBUG(dbgThread,"PCB: Failed to allocate address space");
-        return;
+    char* fileName = (char*) args;
+    DEBUG(dbgThread, "PCB: Starting process " << fileName);
+    AddrSpace *addrspace = new AddrSpace;
+    if (addrspace->Load(fileName)) {
+        addrspace->Execute();
     }
-    if (!addrspace->Load(filename)) {
-        DEBUG(dbgThread,"PCB: Failed to load the program into address space");
-        delete addrspace;
-        return;
-    }
-    addrspace->Execute();
     ASSERTNOTREACHED();
 }
 PCB::PCB()

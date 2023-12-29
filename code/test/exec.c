@@ -1,5 +1,11 @@
 #include "syscall.h"
 
 int main() {
-    Exec("./add");
+    int id = 0;
+    int ec = 0;
+
+    
+    PrintString("Test Exec\n");
+    id = Exec("createfile");
+
 }

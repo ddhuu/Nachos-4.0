@@ -7,9 +7,9 @@
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
-      "externalConsole": true,
-      "cwd": "//wsl.localhost/Ubuntu/home/ddhuu/nachos/NachOS-4.0/code/test",
-      "program": "//wsl.localhost/Ubuntu/home/ddhuu/nachos/NachOS-4.0/code/test/build/Debug/outDebug",
+      "externalConsole": false,
+      "cwd": ".",
+      "program": "build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
