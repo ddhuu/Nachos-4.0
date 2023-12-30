@@ -1,5 +1,4 @@
 #include "syscall.h"
-
 int main() {
     int id = 0;
     int ec = 0;

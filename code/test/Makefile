@@ -114,7 +114,7 @@ else
 # change this if you create a new test program!
 PROGRAMS = halt shell matmult sort segments\
 			createfile delete cat copy concatenate testSeek\
-			fileclient echoclient exec join
+			fileclient echoclient exec execv join ping pong testSem threadSem
 endif
 
 all: $(PROGRAMS)
@@ -224,11 +224,40 @@ exec: exec.o start.o
 	$(LD) $(LDFLAGS) start.o exec.o -o exec.coff
 	$(COFF2NOFF) exec.coff exec
 
+execv.o: execv.c
+	$(CC) $(CFLAGS) -c execv.c
+execv: execv.o start.o
+	$(LD) $(LDFLAGS) start.o execv.o -o execv.coff
+	$(COFF2NOFF) execv.coff execv
+
 join.o: join.c
 	$(CC) $(CFLAGS) -c join.c
 join: join.o start.o
 	$(LD) $(LDFLAGS) start.o join.o -o join.coff
 	$(COFF2NOFF) join.coff join
+
+ping.o: ping.c
+	$(CC) $(CFLAGS) -c ping.c
+ping: ping.o start.o
+	$(LD) $(LDFLAGS) start.o ping.o -o ping.coff
+	$(COFF2NOFF) ping.coff ping
+
+pong.o: pong.c
+	$(CC) $(CFLAGS) -c pong.c
+pong: pong.o start.o
+	$(LD) $(LDFLAGS) start.o pong.o -o pong.coff
+	$(COFF2NOFF) pong.coff pong
+testSem.o: testSem.c
+	$(CC) $(CFLAGS) -c testSem.c
+testSem: testSem.o start.o
+	$(LD) $(LDFLAGS) start.o testSem.o -o testSem.coff
+	$(COFF2NOFF) testSem.coff testSem
+
+threadSem.o: threadSem.c
+	$(CC) $(CFLAGS) -c threadSem.c
+threadSem: threadSem.o start.o
+	$(LD) $(LDFLAGS) start.o threadSem.o -o threadSem.coff
+	$(COFF2NOFF) threadSem.coff threadSem	
 
 clean:
 	$(RM) -f *.o *.ii

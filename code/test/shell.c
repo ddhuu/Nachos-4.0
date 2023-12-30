@@ -1,35 +1,16 @@
 #include "syscall.h"
 
-int
-main()
-{
-    SpaceId newProc;
-    OpenFileId input = CONSOLEINPUT;
-    OpenFileId output = CONSOLEOUTPUT;
-    char prompt[2], ch, buffer[60];
-    int i;
+int main() {
+	int pingPID, pongPID;
+	int pingExitCode, pongExitCode;
+	PrintString("Ping-Pong test starting...\n\n");
+	pingPID = Exec("ping");
+	pongPID = Exec("pong");
 
-    prompt[0] = '-';
-    prompt[1] = '-';
+	pingExitCode = Join(pingPID);
+	pongExitCode = Join(pongPID);
 
-    while( 1 )
-    {
-	Write(prompt, 2, output);
 
-	i = 0;
-	
-	do {
-	
-	    Read(&buffer[i], 1, input); 
-
-	} while( buffer[i++] != '\n' );
-
-	buffer[--i] = '\0';
-
-	if( i > 0 ) {
-		newProc = Exec(buffer);
-		Join(newProc);
-	}
-    }
+	PrintString("\nFinish Ping-Pong test\n");
 }
 

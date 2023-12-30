@@ -16,4 +16,5 @@ int main()
     {
         PrintString("Tao file thanh cong\n");
     }
+    Exit(0);
 }

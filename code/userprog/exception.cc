@@ -103,6 +103,30 @@ int System2User(int virtAddr, int len, char *buffer)
 	} while (i < len && oneChar != 0);
 	return i;
 }
+
+char **User2System2(int virtAddr, int argc, int limit)
+{
+	int i;
+	int oneChar;
+	char **kernelBuf = new char*[argc+1];
+
+	for (i = 0; i < argc; i++)
+	{
+		
+		int argi;
+		kernel->machine->ReadMem(virtAddr + i * 4, 4, &argi);
+		kernelBuf[i] = new char[limit];
+
+		kernelBuf[i] = User2System(argi,128);
+	}
+
+	return kernelBuf;
+}
+
+
+// Usage: create a process from a program and schedule it for execution
+// Input: address to the program name
+// Output: the process ID, or -1 on failure
 void ExceptionHandlerExec()
 {
 	DEBUG(dbgSys, "Syscall: Exec(filename)");
@@ -121,6 +145,10 @@ void ExceptionHandlerExec()
 	kernel->machine->WriteRegister(2, result);
 	delete fileName;
 }
+
+
+
+
 
 // Usage: block the current thread until the child thread has exited
 // Input: ID of the thread being joined
@@ -242,6 +270,7 @@ void ExceptionHandlerSignal()
 	kernel->machine->WriteRegister(2, res);
 	return;
 }
+
 void ExceptionHandlerPrintNum()
 {
 	// read number from register 4
@@ -289,6 +318,26 @@ void ExceptionHandlerPrintNum()
 	// print the result to console
 	for (int i = 0; i < length; i++)
 		kernel->synchConsoleOut->PutChar(num_buffer[i]);
+}
+
+void SlovingSC_ExecV() {
+	int argc1 = kernel->machine->ReadRegister(4); // number of arg
+	int argv1 = kernel->machine->ReadRegister(5); // arg arr
+	char* temp = User2System(argc1,MAXLENGTH);
+	int numberArg = argc1;
+	
+	char ** argv= User2System2(argv1,numberArg,MAXLENGTH);
+	char*program=argv[0];
+	cout<<"\n"<<argv[0]<<endl;
+	int result = SysExecV(program, argv);
+
+	for (int i = 0; i < numberArg; i++)
+	{
+		delete[] argv[i];
+	}
+
+	kernel->machine->WriteRegister(2, result);
+	return IncreasePC();
 }
 
 void ExceptionHandler(ExceptionType which)
@@ -628,6 +677,11 @@ void ExceptionHandler(ExceptionType which)
 		{
 			ExceptionHandlerPrintNum();
 			IncreasePC();
+			break;
+		}
+		case SC_ExecV:
+		{
+			return SlovingSC_ExecV();
 			break;
 		}
 
