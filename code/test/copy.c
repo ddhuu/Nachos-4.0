@@ -23,18 +23,18 @@ int main()
         if (Seek(0, openFileIdSrc) == -1)
         {
             PrintString("Seek that bai\n");
-            Halt();
+            
         }
         result = Read(buffer, len, openFileIdSrc);
         if (result == -1)
         {
             PrintString("Doc bi loi!!!\n");
-            Halt();
+            
         }
         if (Close(openFileIdSrc) == -1)
         {
             PrintString("Dong file nguon that bai!!!\n");
-            Halt();
+            
         }
         else
         {
@@ -47,7 +47,7 @@ int main()
             if (Create(filenameDestinate) == -1)
             {
                 PrintString("\nFile khong ton tai. Loi tao file!!\n");
-                Halt();
+                
             }
             else
             {
@@ -56,7 +56,7 @@ int main()
                 if (openFileIdDest == -1)
                 {
                     PrintString("Mo file dich that bai\n");
-                    Halt();
+                    
                 }
             }
         }
@@ -64,13 +64,13 @@ int main()
         if (resultWrite == -1)
         {
             PrintString("Loi Write khi copy file!!!\n");
-            Halt();
+            
         }
         PrintString("\nCopy du lieu thanh cong !!\n");
         if (Close(openFileIdDest) == -1)
         {
             PrintString("Dong file dich that bai!!!\n");
-            Halt();
+            
         }
         else
         {
@@ -80,8 +80,6 @@ int main()
     else
     {
         PrintString("\nFile nguon khong ton tai !!\n");
-        Halt();
     }
 
-    Halt();
 }

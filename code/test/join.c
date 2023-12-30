@@ -1,14 +1,18 @@
 #include "syscall.h"
+
 int main() {
-    int id = 0;
-    int ec = 0;
-    
-    PrintString("join is executing Createfile.c\n");
-    id = Exec("createfile");
-    PrintString("join is joining into CreateFile\n");
-    ec = Join(id);
-    PrintString("join has returned\n");
-    PrintString("join receive exit code from CreateFile: ");
-    PrintNum(ec);
-    PrintString("\n");
+	int pingPID, pongPID;
+	int pingExitCode, pongExitCode;
+	PrintString("Ping-Pong test starting...\n\n");
+	pingPID = Exec("ping");
+	pongPID = Exec("pong");
+
+	pingExitCode = Join(pingPID);
+	pongExitCode = Join(pongPID);
+
+	//Exit(pingExitCode);
+	//Exit(pongExitCode);
+
+	PrintString("\nFinish Ping-Pong test\n");
 }
+

@@ -25,14 +25,14 @@ int main()
         if (fileSize == -1)
         {
             PrintString("Seek that bai!!!");
-            Halt();
+            
         }
 
         // Seek den dau tap tin de tien hanh Read
         if (Seek(0, openFileId) == -1)
         {
             PrintString("Seek that bai!!!");
-            Halt();
+            
         }
 
         for (i = 0; i < fileSize; i++) // Cho vong lap chay tu 0 - fileSize
@@ -40,7 +40,7 @@ int main()
             if (Read(c, 1, openFileId) == -1)
             { // Goi ham Read de doc tung ki tu noi dung file
                 PrintString("Read bi loi!!!!");
-                Halt();
+                
             }
             PrintString(c); // Goi ham PrintString de in tung ki tu ra man hinh
         }
@@ -48,15 +48,15 @@ int main()
         if (Close(openFileId) == -1) // Goi ham Close de dong file
         {
             PrintString("Dong file that bai!!!\n");
-            Halt();
+            
         }
         PrintString("Dong file thanh cong\n");
-        Halt();
+        
     }
     else
     {
         PrintString("* * * Mo file That bai * * * \n");
-        Halt();
+        
     }
-    Halt();
+    
 }

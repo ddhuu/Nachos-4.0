@@ -1,16 +1,10 @@
 #include "syscall.h"
 
-int main() {
-	int pingPID, pongPID;
-	int pingExitCode, pongExitCode;
-	PrintString("Ping-Pong test starting...\n\n");
-	pingPID = Exec("ping");
-	pongPID = Exec("pong");
-
-	pingExitCode = Join(pingPID);
-	pongExitCode = Join(pongPID);
-
-
-	PrintString("\nFinish Ping-Pong test\n");
+int main()
+{
+    SpaceId id1, id2;
+    id1 = Exec("cat");
+    id2 = Exec("copy");
+    Join(id1);
+    Join(id2);
 }
-
