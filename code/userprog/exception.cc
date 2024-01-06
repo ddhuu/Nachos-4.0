@@ -104,6 +104,12 @@ int System2User(int virtAddr, int len, char *buffer)
 	return i;
 }
 
+
+
+
+
+//-------------------PROJECT 02 --------------------//
+
 char **User2System2(int virtAddr, int argc, int limit)
 {
 	int i;
@@ -124,67 +130,45 @@ char **User2System2(int virtAddr, int argc, int limit)
 }
 
 
-// Usage: create a process from a program and schedule it for execution
-// Input: address to the program name
-// Output: the process ID, or -1 on failure
-void ExceptionHandlerExec()
+
+void Handle_Exec()
 {
-	DEBUG(dbgSys, "Syscall: Exec(filename)");
 
 	int addr = kernel->machine->ReadRegister(4);
-	DEBUG(dbgSys, "Register 4: " << addr);
-
 	char *fileName;
 	fileName = User2System(addr, 255);
-	DEBUG(dbgSys, "Read file name: " << fileName);
 
-	DEBUG(dbgSys, "Scheduling execution...");
-	int result = kernel->pTab->ExecUpdate(fileName);
-
-	DEBUG(dbgSys, "Writing result to register 2: " << result);
+	int result = SysExec(fileName);
+	
 	kernel->machine->WriteRegister(2, result);
 	delete fileName;
 }
 
 
-
-
-
-// Usage: block the current thread until the child thread has exited
-// Input: ID of the thread being joined
-// Output: exit code of the thread
-void ExceptionHandlerJoin()
+void Handle_Join()
 {
-	DEBUG(dbgSys, "Syscall: Join");
 	int id = kernel->machine->ReadRegister(4);
 	int result = kernel->pTab->JoinUpdate(id);
 	kernel->machine->WriteRegister(2, result);
 }
 
-// Usage: exit current thread
-// Input: exit code to pass to parent
-// Output: none
-void ExceptionHandlerExit()
+
+void Handle_Exit()
 {
-	DEBUG(dbgSys, "Syscall: Exit");
 	int exitCode = kernel->machine->ReadRegister(4);
 	int result = kernel->pTab->ExitUpdate(exitCode);
 }
 
-// Usage: Create a semaphore
-// Input : name of semphore and int for semaphore value
-// Output : success: 0, fail: -1
-void ExceptionHandlerCreateSemaphore()
+
+void Handle_CreateSemaphore()
 {
-	// Load name and value of semaphore
-	int virtAddr = kernel->machine->ReadRegister(4); // read name address from 4th register
-	int semVal = kernel->machine->ReadRegister(5);	 // read type from 5th register
-	char *name = User2System(virtAddr, MaxFileLength); // Copy semaphore name charArray form userSpace to systemSpace
+
+	int virtAddr = kernel->machine->ReadRegister(4); 
+	int semVal = kernel->machine->ReadRegister(5);	 
+	char *name = User2System(virtAddr, MaxFileLength); 
 	
-	// Validate name
 	if(name == NULL)
 	{
-		// DEBUG(dbgSynch, "\nNot enough memory in System");
 		printf("\nNot enough memory in System");
 		kernel->machine->WriteRegister(2, -1);
 		delete[] name;
@@ -193,10 +177,8 @@ void ExceptionHandlerCreateSemaphore()
 	
 	int res = kernel->semTab->Create(name, semVal);
 
-	// Check error
 	if(res == -1)
 	{
-		// DEBUG('a', "\nCan not create semaphore");
 		printf("\nCan not create semaphore");
 	}
 	
@@ -205,19 +187,14 @@ void ExceptionHandlerCreateSemaphore()
 	return;
 }
 
-// Usage: Sleep
-// Input : name of semaphore
-// Output : success: 0, fail: -1
-void ExceptionHandlerWait()
+
+void Handle_Wait()
 {
-	// Load name of semaphore
 	int virtAddr = kernel->machine->ReadRegister(4);
 	char *name = User2System(virtAddr, MaxFileLength + 1);
 
-	// Validate name
 	if(name == NULL)
 	{
-		// DEBUG(dbgSynch, "\nNot enough memory in System");
 		printf("\nNot enough memory in System");
 		kernel->machine->WriteRegister(2, -1);
 		delete[] name;
@@ -226,10 +203,8 @@ void ExceptionHandlerWait()
 
 	int res = kernel->semTab->Wait(name);
 	
-	// Check error
 	if(res == -1)
 	{
-		// DEBUG(dbgSynch, "\nNot exists semaphore");
 		printf("\nNot exists semaphore");
 	}
 
@@ -238,19 +213,14 @@ void ExceptionHandlerWait()
 	return;
 }
 
-// Usage: Wake up
-// Input : name of semaphore
-// Output : success: 0, fail: -1
-void ExceptionHandlerSignal()
+
+void Handle_Signal()
 {
-	// Load name of semphore
 	int virtAddr = kernel->machine->ReadRegister(4);
 	char *name = User2System(virtAddr, MaxFileLength + 1);
 
-	// Validate name
 	if(name == NULL)
 	{
-		// DEBUG(dbgSynch, "\nNot enough memory in System");
 		printf("\n Not enough memory in System");
 		kernel->machine->WriteRegister(2, -1);
 		delete[] name;
@@ -259,10 +229,8 @@ void ExceptionHandlerSignal()
 	
 	int res = kernel->semTab->Signal(name);
 
-	// Check error
 	if(res == -1)
 	{
-		// DEBUG(dbgSynch, "\nNot exists semaphore");
 		printf("\nNot exists semaphore");
 	}
 	
@@ -271,9 +239,9 @@ void ExceptionHandlerSignal()
 	return;
 }
 
-void ExceptionHandlerPrintNum()
+void Handle_PrintNum()
 {
-	// read number from register 4
+	
 	int number = kernel->machine->ReadRegister(4);
 
 	/*int: [-2147483648 , 2147483647] --> max buffer = 11*/
@@ -320,7 +288,7 @@ void ExceptionHandlerPrintNum()
 		kernel->synchConsoleOut->PutChar(num_buffer[i]);
 }
 
-void SlovingSC_ExecV() {
+void Handle_ExecV() {
 	int argc1 = kernel->machine->ReadRegister(4); // number of arg
 	int argv1 = kernel->machine->ReadRegister(5); // arg arr
 	char* temp = User2System(argc1,MAXLENGTH);
@@ -337,7 +305,6 @@ void SlovingSC_ExecV() {
 	}
 
 	kernel->machine->WriteRegister(2, result);
-	return IncreasePC();
 }
 
 void ExceptionHandler(ExceptionType which)
@@ -350,7 +317,40 @@ void ExceptionHandler(ExceptionType which)
 	{
 	case NoException:
 		return;
+    case PageFaultException:
+		DEBUG(dbgSys, " PageFaultException");
+		kernel->interrupt->Halt();
+		break;
 
+	case ReadOnlyException:
+		DEBUG(dbgSys, "\n ReadOnlyException");
+		kernel->interrupt->Halt();
+		break;
+
+	case BusErrorException:
+		DEBUG(dbgSys, "\n BusErrorException");
+		kernel->interrupt->Halt();
+		break;
+
+	case AddressErrorException:
+		DEBUG(dbgSys, "\n AddressErrorException");
+		kernel->interrupt->Halt();
+		break;
+
+	case OverflowException:
+		DEBUG(dbgSys, "\n OverflowException");
+		kernel->interrupt->Halt();
+		break;
+
+	case IllegalInstrException:
+		DEBUG(dbgSys, "\n IllegalInstrException");
+		kernel->interrupt->Halt();
+		break;
+
+	case NumExceptionTypes:
+		DEBUG(dbgSys, "\n NumExceptionTypes");
+		kernel->interrupt->Halt();
+		break;
 	case SyscallException:
 	{
 		switch (type)
@@ -634,54 +634,55 @@ void ExceptionHandler(ExceptionType which)
 
 		case SC_Exec:
 		{
-			ExceptionHandlerExec();
+			Handle_Exec();
 			IncreasePC();
 			break;
 		}
 
 		case SC_Join:
 		{
-			ExceptionHandlerJoin();
+			Handle_Join();
 			IncreasePC();
 			break;
 		}
 
 		case SC_Exit:
 		{
-			ExceptionHandlerExit();
+			Handle_Exit();
 			IncreasePC();
 			break;
 		}
 
 		case SC_CreateSemaphore:
 		{
-			ExceptionHandlerCreateSemaphore();
+			Handle_CreateSemaphore();
 			IncreasePC();
 			break;
 		}
 
 		case SC_Wait:
 		{
-			ExceptionHandlerWait();
+			Handle_Wait();
 			IncreasePC();
 			break;
 		}
 
 		case SC_Signal:
 		{
-			ExceptionHandlerSignal();
+			Handle_Signal();
 			IncreasePC();
 			break;
 		}
 		case SC_PrintNum:
 		{
-			ExceptionHandlerPrintNum();
+			Handle_PrintNum();
 			IncreasePC();
 			break;
 		}
 		case SC_ExecV:
 		{
-			return SlovingSC_ExecV();
+			Handle_ExecV();
+			IncreasePC();
 			break;
 		}
 
@@ -693,7 +694,7 @@ void ExceptionHandler(ExceptionType which)
 	}
 
 	default:
-		cerr << "Unexpected user mode exception" << (int)which << "\n";
+		cerr << "" << (int)which << "\n";
 		break;
 	}
 	// ASSERTNOTREACHED();

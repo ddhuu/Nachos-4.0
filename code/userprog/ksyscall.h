@@ -292,13 +292,11 @@ int SysWrite(char *buffer, int size, int openFileId)
 int SysExec(char* name) {
     OpenFile* oFile = kernel->fileSystem->Open(name);
     
-    // Kiem tra xem file co ton tai khong
     if (oFile == NULL) {
         DEBUG(dbgSys, "\nExec:: Can't open this file.");
         return -1;
     }
 
-    // Tra ve processID cua chuong trinh nap vao
     return kernel->pTab->ExecUpdate(name);
 }
 int SysExecV(char* program, char** argv) {
