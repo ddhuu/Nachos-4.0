@@ -1,18 +1,20 @@
 #include "syscall.h"
 
 int main() {
-	int pingPID, pongPID;
-	int pingExitCode, pongExitCode;
-	PrintString("Ping-Pong test starting...\n\n");
-	pingPID = Exec("ping");
-	pongPID = Exec("pong");
+    int pingPID, pongPID;
+    int pingExitCode, pongExitCode;
 
-	pingExitCode = Join(pingPID);
-	pongExitCode = Join(pongPID);
+    // Create semaphores
+    int a = CreateSemaphore("Ping", 1); 
+    int b = CreateSemaphore("Pong", 0); 
 
-	//Exit(pingExitCode);
-	//Exit(pongExitCode);
+    PrintString("Ping-Pong test starting...\n\n");
 
-	PrintString("\nFinish Ping-Pong test\n");
+    pingPID = Exec("ping");
+    pongPID = Exec("pong");
+
+    pingExitCode = Join(pingPID);
+    pongExitCode = Join(pongPID);
+
+    PrintString("\nFinish Ping-Pong test\n");
 }
-

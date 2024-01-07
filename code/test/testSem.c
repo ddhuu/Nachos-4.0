@@ -13,6 +13,5 @@ int main() {
     if(a==0) {
         PrintString("Wait thanh cong\n");
     }
-
     Exit(0);
 }

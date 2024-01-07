@@ -6,5 +6,4 @@ int main()
     SpaceId t1, t2;
     t1 = ExecV(1, argv1);
     Join(t1);
-    Exit(0);
 }

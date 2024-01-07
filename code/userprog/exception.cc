@@ -33,7 +33,6 @@
 #include "STable.h"
 #include "PTable.h"
 
-#define MaxFileLength 32 
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -123,7 +122,7 @@ char **User2System2(int virtAddr, int argc, int limit)
 		kernel->machine->ReadMem(virtAddr + i * 4, 4, &argi);
 		kernelBuf[i] = new char[limit];
 
-		kernelBuf[i] = User2System(argi,128);
+		kernelBuf[i] = User2System(argi,MAXLENGTH);
 	}
 
 	return kernelBuf;
@@ -136,7 +135,7 @@ void Handle_Exec()
 
 	int addr = kernel->machine->ReadRegister(4);
 	char *fileName;
-	fileName = User2System(addr, 255);
+	fileName = User2System(addr, MAXLENGTH);
 
 	int result = SysExec(fileName);
 	
@@ -165,7 +164,7 @@ void Handle_CreateSemaphore()
 
 	int virtAddr = kernel->machine->ReadRegister(4); 
 	int semVal = kernel->machine->ReadRegister(5);	 
-	char *name = User2System(virtAddr, MaxFileLength); 
+	char *name = User2System(virtAddr, MAXLENGTH); 
 	
 	if(name == NULL)
 	{
@@ -182,7 +181,7 @@ void Handle_CreateSemaphore()
 		printf("\nCan not create semaphore");
 	}
 	
-	delete[] name;
+	delete[] name;	
 	kernel->machine->WriteRegister(2, res);
 	return;
 }
@@ -191,7 +190,7 @@ void Handle_CreateSemaphore()
 void Handle_Wait()
 {
 	int virtAddr = kernel->machine->ReadRegister(4);
-	char *name = User2System(virtAddr, MaxFileLength + 1);
+	char *name = User2System(virtAddr, MAXLENGTH);
 
 	if(name == NULL)
 	{
@@ -217,7 +216,7 @@ void Handle_Wait()
 void Handle_Signal()
 {
 	int virtAddr = kernel->machine->ReadRegister(4);
-	char *name = User2System(virtAddr, MaxFileLength + 1);
+	char *name = User2System(virtAddr, MAXLENGTH);
 
 	if(name == NULL)
 	{
@@ -289,9 +288,9 @@ void Handle_PrintNum()
 }
 
 void Handle_ExecV() {
-	int argc1 = kernel->machine->ReadRegister(4); // number of arg
-	int argv1 = kernel->machine->ReadRegister(5); // arg arr
-	char* temp = User2System(argc1,MAXLENGTH);
+	int argc1 = kernel->machine->ReadRegister(4);
+	int argv1 = kernel->machine->ReadRegister(5); 
+	
 	int numberArg = argc1;
 	
 	char ** argv= User2System2(argv1,numberArg,MAXLENGTH);

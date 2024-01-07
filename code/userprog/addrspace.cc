@@ -119,22 +119,11 @@ bool AddrSpace::Load(char* fileName)
     addressSpaceSize =
         noffH.code.size + noffH.readonlyData.size +
         noffH.initData.size + noffH.uninitData.size + UserStackSize;
-    DEBUG(
-        dbgAddr,
-        "Read " << fileName << " with total program size: " << addressSpaceSize
-    );
-    DEBUG(
-        dbgAddr,
-        "Code segment: " << noffH.code.size <<
-        ", initData segment: " << noffH.initData.size <<
-        ", uninitData segment: " << noffH.uninitData.size <<
-        ", stack: " << UserStackSize
-    )
+   
     
     // Determine the number of virtual pages required
     this->numPages = divRoundUp(addressSpaceSize, PageSize);
     addressSpaceSize = this->numPages * PageSize;
-    DEBUG(dbgAddr, "Allocating " << this->numPages << " pages ...");
     
     // ---- Allocate physical frames ---
 

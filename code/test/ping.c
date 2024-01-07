@@ -1,8 +1,11 @@
+// ping.c
 #include "syscall.h"
 
-void main()
-{
+int main() {
     int i;
-    for (i = 0; i < 1000; i++)
-        PrintString("A");
+    for (i = 0; i < 1000; i++) {
+        Wait("Ping"); 
+        PrintString("Ping");
+        Signal("Pong"); 
+    }
 }
