@@ -114,7 +114,7 @@ else
 # change this if you create a new test program!
 PROGRAMS = halt shell matmult sort segments\
 			createfile delete cat copy concatenate testSeek\
-			fileclient echoclient exec execv join ping pong testSem threadSem
+			fileclient echoclient exec execv pingpong ping pong testSem threadSem test
 endif
 
 all: $(PROGRAMS)
@@ -230,11 +230,17 @@ execv: execv.o start.o
 	$(LD) $(LDFLAGS) start.o execv.o -o execv.coff
 	$(COFF2NOFF) execv.coff execv
 
-join.o: join.c
-	$(CC) $(CFLAGS) -c join.c
-join: join.o start.o
-	$(LD) $(LDFLAGS) start.o join.o -o join.coff
-	$(COFF2NOFF) join.coff join
+pingpong.o: pingpong.c
+	$(CC) $(CFLAGS) -c pingpong.c
+pingpong: pingpong.o start.o
+	$(LD) $(LDFLAGS) start.o pingpong.o -o pingpong.coff
+	$(COFF2NOFF) pingpong.coff pingpong
+
+test.o: test.c
+	$(CC) $(CFLAGS) -c test.c
+test: test.o start.o
+	$(LD) $(LDFLAGS) start.o test.o -o test.coff
+	$(COFF2NOFF) test.coff test
 
 ping.o: ping.c
 	$(CC) $(CFLAGS) -c ping.c
